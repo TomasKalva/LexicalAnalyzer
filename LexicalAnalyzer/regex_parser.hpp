@@ -3,23 +3,19 @@
 
 #include <string>
 #include <vector>
-#include "state_machine.hpp"
+#include "nfa.hpp"
+#include "nfa_builder.hpp"
 
 class regex_parser {
 private:
 	std::string input_;
 	std::size_t position_;
-	std::vector<char> special_symbols_;
+	//number of currently open parentheses
 	int32_t open_parenth_;
-public:
-	explicit regex_parser(std::string input) :
-		input_(input),
-		position_(0),
-		open_parenth_(0),
-		special_symbols_
-	{'|','*','+','.','[',']','(',')','\\'} {
+	std::vector<char> special_symbols_;
+	std::vector<char> backslashable_letters_;
+	nfa_builder smb_;
 
-	}
 	char next();
 	bool match(const char c);
 	char peek();
@@ -27,12 +23,26 @@ public:
 	void error(std::string message);
 	bool peek_terminal();
 	void move();
+	bool can_be_backslashed(char c);
+	char backslashed_value(char c);
 
-	state_machine expr();
-	state_machine term();
-	state_machine factor();
-	state_machine base();
-	state_machine repeat_terminal();
-	state_machine terminal();
+	nfa expr();
+	nfa term();
+	nfa factor();
+	nfa base();
+	nfa repeat_terminal();
+	nfa terminal();
+public:
+	explicit regex_parser(std::string input) :
+		input_(input),
+		position_(0),
+		open_parenth_(0),
+		special_symbols_
+	{'|','*','+','.','[',']','(',')','\\'},
+		backslashable_letters_
+	{'n','t','r'}{
+
+	}
+	nfa create_machine();
 };
 #endif

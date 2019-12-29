@@ -3,34 +3,62 @@
 
 #include <iostream>
 #include "regex_parser.hpp"
-#include "state_machine_builder.hpp"
+#include "nfa_builder.hpp"
+#include "nfa_runner.hpp"
+#include "dfa_builder.hpp"
+#include "dfa_runner.hpp"
 
 int main()
 {
     std::cout << "Hello World!\n";
-    std::string re = "(a)|a(a)*";
+    std::string re = "(..)+";
     regex_parser rp(re);
     try {
-        std::cout << re;
-        std::cout<<rp.expr().info_;
+        std::cout << re << '\n';
+        nfa sm = rp.create_machine();
+        std::cout<<sm.expression_;
+
+        nfa_runner mr(sm);
+        /*//mr.print_active();
+        mr.move('a');
+        std::cout << mr.matches();
+        //mr.print_active();
+        mr.move('a');
+        std::cout << mr.matches();
+        //mr.print_active();
+        mr.move('a');
+        std::cout << mr.matches();
+        //mr.print_active();
+        mr.move('a');
+        std::cout << mr.matches();
+        //mr.print_active();
+        mr.move('a');
+        std::cout << mr.matches();
+        //mr.print_active();
+        std::cout << mr.longest_matching_prefix();*/
+
+        dfa_builder db;
+        dfa d = db.create_dfa(mr);
+        dfa_runner dr(d);
+        dr.move('a');
+        std::cout << dr.matches();
+        dr.move('a');
+        std::cout << dr.matches();
+        dr.move('a');
+        std::cout << dr.matches();
+        dr.move('a');
+        std::cout << dr.matches();
+        dr.move('a');
+        std::cout << dr.matches();
+        std::cout << dr.longest_matching_prefix();
     }
     catch (std::invalid_argument & e) {
         std::cout << e.what();
     }
-    state_machine_builder smb;
+    /*nfa_builder smb;
     auto x = smb.dot_sm();
     auto y = smb.dot_sm();
-    auto xy = smb.concat_sm(x, y);
+    auto xy = smb.union_sm(x, y);*/
+    //std::cout << std::to_string(std::find(v.begin(), v.end(), v, []() {return true; }) != v.end());
     return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
