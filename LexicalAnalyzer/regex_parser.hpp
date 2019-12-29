@@ -33,7 +33,7 @@ private:
 	nfa repeat_terminal();
 	nfa terminal();
 public:
-	explicit regex_parser(std::string input) :
+	explicit regex_parser(const std::string& input) :
 		input_(input),
 		position_(0),
 		open_parenth_(0),

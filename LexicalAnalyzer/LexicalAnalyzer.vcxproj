@@ -154,6 +154,7 @@
     <ClCompile Include="nfa_runner.cpp" />
     <ClCompile Include="regex_parser.cpp" />
     <ClCompile Include="nfa_builder.cpp" />
+    <ClCompile Include="tokenizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dfa.hpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="regex_parser.hpp" />
     <ClInclude Include="nfa.hpp" />
     <ClInclude Include="nfa_builder.hpp" />
+    <ClInclude Include="tokenizer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="regexptests.txt" />

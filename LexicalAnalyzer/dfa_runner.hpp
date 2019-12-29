@@ -7,14 +7,14 @@
 
 class dfa_runner {
 private:
-	dfa& dfa_;
+	dfa dfa_;
 	dfa::state active_state_;
 	std::string buffer_;
 	int32_t matching_prefix_length_;
 public:
 	friend dfa_builder;
 
-	explicit dfa_runner(dfa& dfa) :dfa_(dfa) {
+	explicit dfa_runner(dfa dfa) :dfa_(dfa) {
 		reset();
 	}
 

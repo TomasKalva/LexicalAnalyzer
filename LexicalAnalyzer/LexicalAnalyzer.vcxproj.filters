@@ -33,6 +33,9 @@
     <ClCompile Include="dfa_runner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tokenizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="regex_parser.hpp">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nfa_builder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tokenizer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
