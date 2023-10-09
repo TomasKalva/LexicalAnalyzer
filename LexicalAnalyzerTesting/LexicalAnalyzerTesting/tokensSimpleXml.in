@@ -1,0 +1,8 @@
+tag
+<[a-z_]+( [a-z]*="[a-z0-9]+")*>
+value
+[a-zA-Z0-9 ,\.-':\+#\n\t]*
+end_tag
+</[a-z_]+>
+blank
+[ \t\n\r]+

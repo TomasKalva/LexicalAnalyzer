@@ -1,0 +1,17 @@
+[ab]*
+aaabbabbba
+(ab)*
+aaabbabbba
+hello world|hello
+hello
+a[\t ]*b
+a									 b
+[0-9]+\+[0-9]+
+55+9
+.* .* .*
+one two three four
+([abc]+ )+
+abbac ab 
+[a-z]*
+hugiealglgiul
+a*

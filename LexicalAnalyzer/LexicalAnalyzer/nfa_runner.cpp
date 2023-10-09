@@ -1,9 +1,10 @@
+#include "pch.h"
 #include "nfa.hpp"
 #include "nfa_runner.hpp"
 #include <algorithm>
 #include <iostream>
 
-void nfa_runner::move(char c) {
+void lex::nfa_runner::move(char c) {
 	active_states_ = next_state(active_states_, c);
 	buffer_ += std::string(1,c);
 
@@ -13,12 +14,12 @@ void nfa_runner::move(char c) {
 	}
 }
 
-std::vector<int32_t> nfa_runner::lambda_closure(const std::vector<int32_t>& states) const {
+std::vector<int32_t> lex::nfa_runner::lambda_closure(const std::vector<int32_t>& states) const {
 	std::vector<int32_t> lambda_closure = states;
 	bool added_something = true;
 	while (added_something) {
 		added_something = false;
-		for (int i = 0; i < lambda_closure.size();i++) {
+		for (size_t i = 0; i < lambda_closure.size();i++) {
 			int32_t state = lambda_closure[i];
 			for (edge e : nfa_.transition_func_[state]) {
 				if (e.lambda_ && 
@@ -32,7 +33,7 @@ std::vector<int32_t> nfa_runner::lambda_closure(const std::vector<int32_t>& stat
 	return lambda_closure;
 }
 
-std::vector<int32_t> nfa_runner::next_state(const std::vector<int32_t>& states, char c) const {
+std::vector<int32_t> lex::nfa_runner::next_state(const std::vector<int32_t>& states, char c) const {
 	std::vector<int32_t> new_states;
 	for (int32_t state : states) {
 		for (edge e : nfa_.transition_func_[state]) {
@@ -46,7 +47,7 @@ std::vector<int32_t> nfa_runner::next_state(const std::vector<int32_t>& states, 
 	return new_states;
 }
 
-std::vector<int32_t> nfa_runner::next_state_by_dots(const std::vector<int32_t>& states) const {
+std::vector<int32_t> lex::nfa_runner::next_state_by_dots(const std::vector<int32_t>& states) const {
 	std::vector<int32_t> new_states;
 	for (int32_t state : states) {
 		for (edge e : nfa_.transition_func_[state]) {
@@ -59,13 +60,13 @@ std::vector<int32_t> nfa_runner::next_state_by_dots(const std::vector<int32_t>& 
 	return new_states;
 }
 
-void nfa_runner::reset() {
+void lex::nfa_runner::reset() {
 	buffer_ = "";
 	active_states_ = lambda_closure(std::vector<int32_t>{ nfa_.start_ });
 	matching_prefix_length_ = -1;
 }
 
-void nfa_runner::print_active() {
+void lex::nfa_runner::print_active() {
 	for (auto state : active_states_) {
 		std::cout << state << ' ';
 	}

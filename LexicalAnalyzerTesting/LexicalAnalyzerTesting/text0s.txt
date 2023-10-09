@@ -1,0 +1,7 @@
+/* this
+is
+testing file*/
+ident1 = 5;   
+ident2 = ident1;
+	ident3 = "string";
+/* comment */    

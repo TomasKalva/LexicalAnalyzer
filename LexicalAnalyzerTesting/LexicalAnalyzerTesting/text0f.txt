@@ -1,0 +1,6 @@
+/* this
+is
+testing file*/
+ident1    ident2
+/* comment */
+/*

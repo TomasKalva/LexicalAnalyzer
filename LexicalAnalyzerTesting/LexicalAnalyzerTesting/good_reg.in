@@ -1,0 +1,15 @@
+abc
+.
+\)
+\\
+\.|a
+[\n\\\.]
+a(b)|cd
+[ab]*
+[a-z]
+[a-z0-9]
+[a-za-z]
+[0a-z-9]
+[]*
+[0-9]+\+[0-9]+
+while|if|else|try|catch|for|continue|break|auto|void|do|case

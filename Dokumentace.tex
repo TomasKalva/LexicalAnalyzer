@@ -1,0 +1,80 @@
+\documentclass{article}
+\pagenumbering{gobble}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\newcommand{\delim}{\; \big| \;}
+\begin{document} 
+
+\section{Anotace}
+Hlavní projekt je dynamicky linkovaná knihovna pro Windows implementující parsování textu na lexikální tokeny definované pomocí regulárních výrazů. Vedlejší testovací projekt ukazuje možné použití knihovny.
+
+\section{Reprezentace regulárních výrazů}
+Regulární výraz je:
+\begin{itemize}
+	\item znak
+	\item backslashovaný speciální znak
+	\item $[...]$ - výčet hodnot(v závorce mohou být nespeciální znaky, backslashované speciální znaky, nebo výčty hodnot a-z, A-Z, 0-9)
+	\item .
+\end{itemize}
+Pokud $e_1, e_2$ jsou regulární výrazy, potom je regulární výraz taky:
+\begin{itemize}
+	\item $e_1*$
+	\item $e_1+$
+	\item $(e_1)$
+	\item $e_1e_2$
+	\item $e_1|e_2$
+\end{itemize}
+
+\section{Testovací projekt}
+Testovací program testuje parsování regulárních výrazů, deterministické automaty vytvořené z regulárních výrazů a parsování souborů na tokeny. Testování je prováděno pomocí příkazů na konzoli. Knihovna je k projektu přilinkovaná staticky. Před spuštěním programu je třeba sestavit projekt LexicalAnalyzer. LexicalAnalyzer.dll je v post-build eventu testovacího projektu zkopírován z výstupu knihovny do výstupního adresáře testovacího projektu. 
+
+Všechny soubory berou jako první argument soubor s příponou .in, jako argument se zadává pouze název \textbf{bez přípony}.
+
+Příkaz t vypíše syntaktické stromy regulárních výrazů ze souboru zadaného jako první argument. Na každém řádku souboru se nachází jeden regulární výraz. Soubor $\texttt{good\_reg.in}$ obsahuje správně vytvořené výrazy, $\texttt{bad\_reg.in}$ obsahuje špatně vytvořené výrazy. 
+
+Příkaz m má jako argument soubor, který má na lichých řádcích regulární výrazy, a na sudých řádcích text který má být otestován regulárním výrazem z předchozího řádku. Příkaz vypíše jestli text odpovídá reg. výrazu a deterministický automat odpovídající reg. výrazu. Testovací soubor je $\texttt{matching.in}$.
+
+Příkaz a má dva argumenty, soubor který má na lichých řádcích názvy tokenů, a na sudých řádcích regulární výrazy odpovídající tokenu na předchozí řádce. Druhý argument je název souboru i \textbf{s příponou}, obsahující text k parsování. Příkaz vypíše tokeny a jejich hodnoty, nebo že text nešlo pomocí výrazů naparsovat. Výstup lze zapsat do souboru zadaného jako třetí argument. Dvojice testovacích souborů jsou:
+
+
+\begin{itemize}
+	\item $\texttt{tokens0.in, text0s.txt }$
+	\item $\texttt{tokens0.in, text0f.txt}$ - parsování neuspěje
+	\item $\texttt{tokensSimpleCpp.in, cppCode.txt}$ - parsování některých tokenů c++
+	\item $\texttt{tokensSimpleXml.in, books.xml}$\footnote{Soubor převzatý z \url{https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762271(v\%3Dvs.85)}} - parsování některých tokenů xml
+\end{itemize}
+
+\section{Knihovna}
+\subsection*{Implementace}
+Knihovna se skládá z tříd reprezentujících stavové automaty - $\texttt{dfa, nfa}$; tříd vytvářejících stavové automaty z regulárních výrazů - $\texttt{dfa\_builder, nfa\_builder}$; tříd umožňujících spouštění stavových automatů - $\texttt{dfa\_runner, nfa\_runner}$; třídy vytvářející $\texttt{dfa}$ z regulárního výrazu $\texttt{regexp\_parser}$; třídy tokenizer, která pomocí regulární výrazů rozdělí text na tokeny.
+
+$\texttt{regex\_parser}$ načítá regulární výrazy pomocí rekurzivního sestupu pro následující gramatiku:
+\begin{gather*}
+E \rightarrow T|E \delim T \\
+T \rightarrow FT \delim F \\
+F \rightarrow B* \delim B+ \delim B \\
+B \rightarrow . \delim P \delim [R] \delim (E) \\
+R \rightarrow PR \delim P \\
+P \rightarrow \setminus n \delim \setminus t  \delim \setminus r  \delim \setminus .  \delim \setminus *  \delim \setminus +  \delim \setminus (  \delim \setminus )  \delim \setminus [  \delim \setminus ]  \delim \setminus |  \delim a  \\
+\end{gather*}
+
+Během načítání, pomocí metody $\texttt{create\_machine}$ je rovnou rekurzivně konstruován nedeterministický stavový automat. Funkce vracející stavový automat pro neterminály a funkce skládající automaty jsou ve třídě $\texttt{nfa\_builder}$, která se také stará o číslování stavů. Pokud je zadán neplatný regulární výraz, je vyhozena výjimka $\texttt{invalid\_argument}$.
+
+$\texttt{nfa}$ obsahuje tři typy hran v přechodové funkci: hranu odpovídající neterminálu(libovolné hodnotě typu char), hranu odpovídající lambda přechodu a hranu odpovídající libovolnému terminálu(tu by šlo nahradit 256 hranami neterminálů, ale tato optimalizace ušetří čas a místo při převodu na deterministický automat). Běh $\texttt{nfa}$ zajišťuje $\texttt{nfa\_runner}$, ten je také použit při konstrukci deterministického automatu.
+
+$\texttt{dfa}$ je vytvořen pomocí třídy $\texttt{dfa\_factory}$. $\texttt{dfa\_factory}$ simuluje průchod $\texttt{nfa}$, pro každý stav dosažitelný z počátečního stavu najde všechna písmena na vycházejících hranách. Pro každé nalezené písmeno najde lambda uzávěr přechodu pomocí tohoto písmena a přidá ho s příslušnou hranou do stavů $\texttt{dfa}$ , pokud ještě nebyl přidán. Pokud některá písmena nejsou na hranách ven ze stavu použita, přidá se přechod do prázdného stavu, pomocí speciální hrany. Nakonec jsou ve vytvořeném $\texttt{dfa}$ pomocí Floyd-Warshallowa algoritmu nalezeny stavy, ze kterých se nelze dostat do žádného koncového stavu.
+
+\subsection*{Rozhraní}
+
+Knihovna exportuje metody tříd $\texttt{regex\_parser}$, $\texttt{dfa\_runner}$, $\texttt{dfa\_factory}$ a $\texttt{tokenizer}$.
+
+ Pomocí metody $\texttt{create\_machine}$ třídy $\texttt{regex\_parser}$ lze zkontrolovat jestli je zadaný regulární výraz syntakticky správně. Metoda $\texttt{create\_dfa}$ třídy $\texttt{dfa\_factory}$ vytváří instance $\texttt{dfa\_runner}$ odpovídající zadanému regulárnímu výrazu.
+
+$\texttt{dfa\_runner}$ umožňuje testovat, jestli text odpovída regulárnímu výrazu. Text se zadává po znacích pomocí metody $\texttt{move}$. Testování jestli text odpovídá výrazu zajišťuje metoda $\texttt{matches}$. Třída dále obsahuje metody $\texttt{longest\_matching\_prefix}$, vracející nejdelší prefix odpovídající regulárnímu výrazu, $\texttt{has\_matching\_prefix}$, která říká jestli takový prefix existuje, a $\texttt{failed}$, říkající jestli automat neuspěl.
+
+$\texttt{tokenizer}$ umožňuje pomocí metod $\texttt{add\_token\_type}$ a $\texttt{remove\_token\_type}$ přidávat a odebírat regulární výrazy s názvy tokenů, kterým odpovídají. Po specifikování tokenů lze metodou $\texttt{set\_input}$ zadat text k naparsování. Metodou $\texttt{next\_token}$ je naparsován další token, metoda $\texttt{get\_token}$ tento token vrací. Pomocí metod $\texttt{finished}$ a $\texttt{correct\_input}$ lze zjistit, jestli je parsování dokončeno a jestli při něm nastala chyba. Pokud při parsování dojde k chybě, je vypsána chybová hláška s číslem řádky a pozicí, kde k chybě došlo.
+
+\end{document}
